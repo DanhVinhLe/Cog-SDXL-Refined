@@ -20,7 +20,7 @@ from dataset_and_utils import (
     load_models,
     unet_attn_processors_state_dict,
 )
-
+from peft import LoRAConfig, get_peft_model, get_peft_model_state_dict
 
 def main(
     pretrained_model_name_or_path: Optional[
@@ -147,35 +147,45 @@ def main(
 
     else:
         # Do lora-training instead.
+        # unet.requires_grad_(False)
+        # unet_lora_attn_procs = {}
+        # unet_lora_parameters = []
+        # for name, attn_processor in unet.attn_processors.items():
+        #     cross_attention_dim = (
+        #         None
+        #         if name.endswith("attn1.processor")
+        #         else unet.config.cross_attention_dim
+        #     )
+        #     if name.startswith("mid_block"):
+        #         hidden_size = unet.config.block_out_channels[-1]
+        #     elif name.startswith("up_blocks"):
+        #         block_id = int(name[len("up_blocks.")])
+        #         hidden_size = list(reversed(unet.config.block_out_channels))[block_id]
+        #     elif name.startswith("down_blocks"):
+        #         block_id = int(name[len("down_blocks.")])
+        #         hidden_size = unet.config.block_out_channels[block_id]
+
+        #     module = LoRAAttnProcessor2_0(
+        #         hidden_size=hidden_size,
+        #         cross_attention_dim=cross_attention_dim,
+        #         rank=lora_rank,
+        #     )
+        #     unet_lora_attn_procs[name] = module
+        #     module.to(device)
+        #     unet_lora_parameters.extend(module.parameters())
+
+        # unet.set_attn_processor(unet_lora_attn_procs)
+        unet_lora_config = LoRAConfig(
+            r = lora_rank, 
+            lora_aplha = lora_rank, 
+            target_modules = ["to_k", "to_q", "to_v", "to_out.0", "add_k_proj", "add_v_proj"],
+            init_lora_weights = "gaussian"
+        )
         unet.requires_grad_(False)
-        unet_lora_attn_procs = {}
-        unet_lora_parameters = []
-        for name, attn_processor in unet.attn_processors.items():
-            cross_attention_dim = (
-                None
-                if name.endswith("attn1.processor")
-                else unet.config.cross_attention_dim
-            )
-            if name.startswith("mid_block"):
-                hidden_size = unet.config.block_out_channels[-1]
-            elif name.startswith("up_blocks"):
-                block_id = int(name[len("up_blocks.")])
-                hidden_size = list(reversed(unet.config.block_out_channels))[block_id]
-            elif name.startswith("down_blocks"):
-                block_id = int(name[len("down_blocks.")])
-                hidden_size = unet.config.block_out_channels[block_id]
-
-            module = LoRAAttnProcessor2_0(
-                hidden_size=hidden_size,
-                cross_attention_dim=cross_attention_dim,
-                rank=lora_rank,
-            )
-            unet_lora_attn_procs[name] = module
-            module.to(device)
-            unet_lora_parameters.extend(module.parameters())
-
-        unet.set_attn_processor(unet_lora_attn_procs)
-
+        peft_unet = get_peft_model(unet, unet_lora_config)
+        peft_unet.to(device)
+        unet_lora_parameters = [p for n, p in peft_unet.named_parameters() if p.requires_grad]
+        
         params_to_optimize = [
             {
                 "params": unet_lora_parameters,
