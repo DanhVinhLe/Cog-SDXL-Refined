@@ -8,7 +8,7 @@ from preprocess import preprocess
 from trainer_pti import main
 
 # from predict import SDXL_MODEL_CACHE, SDXL_URL, download_weights
-SDXL_MODEL_CACHE = "pretrained_model_path_here"  # Bạn có thể sửa lại cho phù hợp
+SDXL_MODEL_CACHE = "stabilityai/stable-diffusion-xl-base-1.0"  # Bạn có thể sửa lại cho phù hợp
 
 OUTPUT_DIR = "training_out"
 
