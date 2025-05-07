@@ -177,7 +177,7 @@ def main(
         # unet.set_attn_processor(unet_lora_attn_procs)
         unet_lora_config = LoraConfig(
             r = lora_rank, 
-            lora_aplha = lora_rank, 
+            lora_alpha = lora_rank, 
             target_modules = ["to_k", "to_q", "to_v", "to_out.0", "add_k_proj", "add_v_proj"],
             init_lora_weights = "gaussian"
         )
