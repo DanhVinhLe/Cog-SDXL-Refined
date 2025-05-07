@@ -14,7 +14,7 @@ from typing import List, Literal, Optional, Tuple, Union
 from zipfile import ZipFile
 
 import cv2
-import mediapipe as mp
+# import mediapipe as mp
 import numpy as np
 import pandas as pd
 import torch
@@ -29,25 +29,25 @@ from transformers import (
     Swin2SRImageProcessor,
 )
 
-from predict import download_weights
+# from predict import download_weights
 
 # model is fixed to Salesforce/blip-image-captioning-large
 BLIP_URL = "https://weights.replicate.delivery/default/blip_large/blip_large.tar"
 BLIP_PROCESSOR_URL = (
     "https://weights.replicate.delivery/default/blip_processor/blip_processor.tar"
 )
-BLIP_PATH = "./blip-cache"
-BLIP_PROCESSOR_PATH = "./blip-proc-cache"
+BLIP_PATH = "Salesforce/blip-image-captioning-large"
+BLIP_PROCESSOR_PATH = "Salesforce/blip-image-captioning-large"
 
 # model is fixed to CIDAS/clipseg-rd64-refined
 CLIPSEG_URL = "https://weights.replicate.delivery/default/clip_seg_rd64_refined/clip_seg_rd64_refined.tar"
 CLIPSEG_PROCESSOR = "https://weights.replicate.delivery/default/clip_seg_processor/clip_seg_processor.tar"
-CLIPSEG_PATH = "./clipseg-cache"
-CLIPSEG_PROCESSOR_PATH = "./clipseg-proc-cache"
+CLIPSEG_PATH = "CIDAS/clipseg-rd64-refined"
+CLIPSEG_PROCESSOR_PATH = "CIDAS/clipseg-rd64-refined"
 
 # model is fixed to caidas/swin2SR-realworld-sr-x4-64-bsrgan-psnr
 SWIN2SR_URL = "https://weights.replicate.delivery/default/swin2sr_realworld_sr_x4_64_bsrgan_psnr/swin2sr_realworld_sr_x4_64_bsrgan_psnr.tar"
-SWIN2SR_PATH = "./swin2sr-cache"
+SWIN2SR_PATH = "caidas/swin2SR-realworld-sr-x4-64-bsrgan-psnr"
 
 TEMP_OUT_DIR = "./temp/"
 TEMP_IN_DIR = "./temp_in/"
@@ -149,8 +149,8 @@ def swin_ir_sr(
     and will be returned as is.
 
     """
-    if not os.path.exists(SWIN2SR_PATH):
-        download_weights(SWIN2SR_URL, SWIN2SR_PATH)
+    # if not os.path.exists(SWIN2SR_PATH):
+    #     download_weights(SWIN2SR_URL, SWIN2SR_PATH)
     model = Swin2SRForImageSuperResolution.from_pretrained(SWIN2SR_PATH).to(device)
     processor = Swin2SRImageProcessor()
 
@@ -199,10 +199,10 @@ def clipseg_mask_generator(
         )
 
         target_prompts = [target_prompts] * len(images)
-    if not os.path.exists(CLIPSEG_PROCESSOR_PATH):
-        download_weights(CLIPSEG_PROCESSOR, CLIPSEG_PROCESSOR_PATH)
-    if not os.path.exists(CLIPSEG_PATH):
-        download_weights(CLIPSEG_URL, CLIPSEG_PATH)
+    # if not os.path.exists(CLIPSEG_PROCESSOR_PATH):
+    #     download_weights(CLIPSEG_PROCESSOR, CLIPSEG_PROCESSOR_PATH)
+    # if not os.path.exists(CLIPSEG_PATH):
+    #     download_weights(CLIPSEG_URL, CLIPSEG_PATH)
     processor = CLIPSegProcessor.from_pretrained(CLIPSEG_PROCESSOR_PATH)
     model = CLIPSegForImageSegmentation.from_pretrained(CLIPSEG_PATH).to(device)
 
@@ -248,10 +248,10 @@ def blip_captioning_dataset(
     """
     Returns a list of captions for the given images
     """
-    if not os.path.exists(BLIP_PROCESSOR_PATH):
-        download_weights(BLIP_PROCESSOR_URL, BLIP_PROCESSOR_PATH)
-    if not os.path.exists(BLIP_PATH):
-        download_weights(BLIP_URL, BLIP_PATH)
+    # if not os.path.exists(BLIP_PROCESSOR_PATH):
+    #     download_weights(BLIP_PROCESSOR_URL, BLIP_PROCESSOR_PATH)
+    # if not os.path.exists(BLIP_PATH):
+    #     download_weights(BLIP_URL, BLIP_PATH)
     processor = BlipProcessor.from_pretrained(BLIP_PROCESSOR_PATH)
     model = BlipForConditionalGeneration.from_pretrained(BLIP_PATH).to(device)
     captions = []
