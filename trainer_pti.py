@@ -20,7 +20,7 @@ from dataset_and_utils import (
     load_models,
     unet_attn_processors_state_dict,
 )
-from peft import LoRAConfig, get_peft_model, get_peft_model_state_dict
+from peft import LoraConfig, get_peft_model, get_peft_model_state_dict
 
 def main(
     pretrained_model_name_or_path: Optional[
@@ -175,7 +175,7 @@ def main(
         #     unet_lora_parameters.extend(module.parameters())
 
         # unet.set_attn_processor(unet_lora_attn_procs)
-        unet_lora_config = LoRAConfig(
+        unet_lora_config = LoraConfig(
             r = lora_rank, 
             lora_aplha = lora_rank, 
             target_modules = ["to_k", "to_q", "to_v", "to_out.0", "add_k_proj", "add_v_proj"],
