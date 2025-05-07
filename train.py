@@ -4,7 +4,7 @@ import tarfile
 
 from cog import BaseModel, Input, Path
 
-# from predict import SDXL_MODEL_CACHE, SDXL_URL, download_weights
+from predict import SDXL_MODEL_CACHE, SDXL_URL, download_weights
 from preprocess import preprocess
 from trainer_pti import main
 
@@ -14,8 +14,8 @@ Wrapper around actual trainer.
 OUTPUT_DIR = "training_out"
 
 
-# class TrainingOutput(BaseModel):
-#     weights: Path
+class TrainingOutput(BaseModel):
+    weights: Path
 
 
 from typing import Tuple
