@@ -369,7 +369,7 @@ def main(
                     )
 
                 else:
-                    lora_tensors = unet_attn_processors_state_dict(peft_unet)
+                    lora_tensors = unet_attn_processors_state_dict(unet)
 
                     save_file(
                         lora_tensors,
@@ -393,7 +393,7 @@ def main(
             f"{output_dir}/unet.safetensors",
         )
     else:
-        lora_tensors = unet_attn_processors_state_dict(peft_unet)
+        lora_tensors = unet_attn_processors_state_dict(unet)
         save_file(
             lora_tensors,
             f"{output_dir}/lora.safetensors",
