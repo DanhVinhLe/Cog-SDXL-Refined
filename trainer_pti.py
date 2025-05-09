@@ -182,9 +182,8 @@ def main(
             init_lora_weights = "gaussian"
         )
         unet.requires_grad_(False)
-        peft_unet = get_peft_model(unet, unet_lora_config)
-        peft_unet.to(device)
-        unet_lora_parameters = [p for n, p in peft_unet.named_parameters() if p.requires_grad]
+        unet = get_peft_model(unet, unet_lora_config)
+        unet_lora_parameters = [p for n, p in unet.named_parameters() if p.requires_grad]
         
         params_to_optimize = [
             {
