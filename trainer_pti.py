@@ -146,35 +146,7 @@ def main(
         ]
 
     else:
-        # Do lora-training instead.
-        # unet.requires_grad_(False)
-        # unet_lora_attn_procs = {}
-        # unet_lora_parameters = []
-        # for name, attn_processor in unet.attn_processors.items():
-        #     cross_attention_dim = (
-        #         None
-        #         if name.endswith("attn1.processor")
-        #         else unet.config.cross_attention_dim
-        #     )
-        #     if name.startswith("mid_block"):
-        #         hidden_size = unet.config.block_out_channels[-1]
-        #     elif name.startswith("up_blocks"):
-        #         block_id = int(name[len("up_blocks.")])
-        #         hidden_size = list(reversed(unet.config.block_out_channels))[block_id]
-        #     elif name.startswith("down_blocks"):
-        #         block_id = int(name[len("down_blocks.")])
-        #         hidden_size = unet.config.block_out_channels[block_id]
-
-        #     module = LoRAAttnProcessor2_0(
-        #         hidden_size=hidden_size,
-        #         cross_attention_dim=cross_attention_dim,
-        #         rank=lora_rank,
-        #     )
-        #     unet_lora_attn_procs[name] = module
-        #     module.to(device)
-        #     unet_lora_parameters.extend(module.parameters())
-
-        # unet.set_attn_processor(unet_lora_attn_procs)
+        # LoRA
         unet_lora_config = LoraConfig(
             r = lora_rank, 
             lora_alpha = lora_rank, 

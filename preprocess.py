@@ -31,21 +31,14 @@ from transformers import (
 # from predict import download_weights
 
 # model is fixed to Salesforce/blip-image-captioning-large
-BLIP_URL = "https://weights.replicate.delivery/default/blip_large/blip_large.tar"
-BLIP_PROCESSOR_URL = (
-    "https://weights.replicate.delivery/default/blip_processor/blip_processor.tar"
-)
 BLIP_PATH = "Salesforce/blip-image-captioning-large"
 BLIP_PROCESSOR_PATH = "Salesforce/blip-image-captioning-large"
 
 # model is fixed to CIDAS/clipseg-rd64-refined
-CLIPSEG_URL = "https://weights.replicate.delivery/default/clip_seg_rd64_refined/clip_seg_rd64_refined.tar"
-CLIPSEG_PROCESSOR = "https://weights.replicate.delivery/default/clip_seg_processor/clip_seg_processor.tar"
 CLIPSEG_PATH = "CIDAS/clipseg-rd64-refined"
 CLIPSEG_PROCESSOR_PATH = "CIDAS/clipseg-rd64-refined"
 
 # model is fixed to caidas/swin2SR-realworld-sr-x4-64-bsrgan-psnr
-SWIN2SR_URL = "https://weights.replicate.delivery/default/swin2sr_realworld_sr_x4_64_bsrgan_psnr/swin2sr_realworld_sr_x4_64_bsrgan_psnr.tar"
 SWIN2SR_PATH = "caidas/swin2SR-realworld-sr-x4-64-bsrgan-psnr"
 
 TEMP_OUT_DIR = "./temp/"
@@ -148,8 +141,6 @@ def swin_ir_sr(
     and will be returned as is.
 
     """
-    # if not os.path.exists(SWIN2SR_PATH):
-    #     download_weights(SWIN2SR_URL, SWIN2SR_PATH)
     model = Swin2SRForImageSuperResolution.from_pretrained(SWIN2SR_PATH).to(device)
     processor = Swin2SRImageProcessor()
 
@@ -198,10 +189,6 @@ def clipseg_mask_generator(
         )
 
         target_prompts = [target_prompts] * len(images)
-    # if not os.path.exists(CLIPSEG_PROCESSOR_PATH):
-    #     download_weights(CLIPSEG_PROCESSOR, CLIPSEG_PROCESSOR_PATH)
-    # if not os.path.exists(CLIPSEG_PATH):
-    #     download_weights(CLIPSEG_URL, CLIPSEG_PATH)
     processor = CLIPSegProcessor.from_pretrained(CLIPSEG_PROCESSOR_PATH)
     model = CLIPSegForImageSegmentation.from_pretrained(CLIPSEG_PATH).to(device)
 
@@ -247,30 +234,26 @@ def blip_captioning_dataset(
     """
     Returns a list of captions for the given images
     """
-    # if not os.path.exists(BLIP_PROCESSOR_PATH):
-    #     download_weights(BLIP_PROCESSOR_URL, BLIP_PROCESSOR_PATH)
-    # if not os.path.exists(BLIP_PATH):
-    #     download_weights(BLIP_URL, BLIP_PATH)
     processor = BlipProcessor.from_pretrained(BLIP_PROCESSOR_PATH)
     model = BlipForConditionalGeneration.from_pretrained(BLIP_PATH).to(device)
     captions = []
     text = text.strip()
     print(f"Input captioning text: {text}")
     for image in tqdm(images):
-        # inputs = processor(image, return_tensors="pt").to("cuda")
-        # out = model.generate(
-        #     **inputs, max_length=150, do_sample=True, top_k=50, temperature=0.7
-        # )
-        # caption = processor.decode(out[0], skip_special_tokens=True)
+        inputs = processor(image, return_tensors="pt").to("cuda")
+        out = model.generate(
+            **inputs, max_length=150, do_sample=True, top_k=50, temperature=0.7
+        )
+        caption = processor.decode(out[0], skip_special_tokens=True)
 
-        # # BLIP 2 lowercases all caps tokens. This should properly replace them w/o messing up subwords. I'm sure there's a better way to do this.
-        # for token in substitution_tokens:
-        #     print(token)
-        #     sub_cap = " " + caption + " "
-        #     print(sub_cap)
-        #     sub_cap = sub_cap.replace(" " + token.lower() + " ", " " + token + " ")
-        #     caption = sub_cap.strip()
-        caption = "owhn woman"
+        # BLIP 2 lowercases all caps tokens. This should properly replace them w/o messing up subwords. I'm sure there's a better way to do this.
+        for token in substitution_tokens:
+            print(token)
+            sub_cap = " " + caption + " "
+            print(sub_cap)
+            sub_cap = sub_cap.replace(" " + token.lower() + " ", " " + token + " ")
+            caption = sub_cap.strip()
+        # caption = "owhn woman"
         captions.append(text + " " + caption)
     print("Generated captions", captions)
     return captions
